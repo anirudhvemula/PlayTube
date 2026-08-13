@@ -171,10 +171,26 @@
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .transport .spacer { flex: 1; }
+  /* Icon buttons and volume slider each stay together as one unbroken group;
+     when space runs out, a whole group wraps to its own line instead of
+     individual buttons splitting apart mid-group. */
+  .transport-icons {
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .volume-row { flex-shrink: 0; }
+  .transport-modes { justify-content: center; }
   /* Video mode: keep everything visually on one row */
   .layout:not(.audio-mode) .transport { flex-direction: row; flex-wrap: wrap; align-items: center; }
   .layout:not(.audio-mode) .transport-row { flex: initial; }
-  .layout:not(.audio-mode) .transport-main { flex: 1; min-width: 0; }
+  .layout:not(.audio-mode) .transport-main {
+    flex: 1; min-width: 0; justify-content: center;
+  }
+  @media (max-width: 480px) {
+    .transport-main, .transport-modes { justify-content: center; width: 100%; }
+    .volume-row input[type=range] { width: 60px; }
+    button { padding: 8px 10px; font-size: 12px; }
+    button.icon { padding: 8px 9px; }
+  }
   button {
     background: var(--panel2); border: 1px solid var(--border); color: var(--text);
     padding: 9px 12px; border-radius: 20px; cursor: pointer; font-size: 13px;
@@ -336,18 +352,20 @@
 
     <div class="transport">
       <div class="transport-row transport-main">
-        <button class="icon" id="prevBtn" title="Previous (J)">
-          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        </button>
-        <button class="icon primary" id="playPauseBtn" title="Play/Pause (Space)">
-          <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="icon" id="stopBtn" title="Stop (S)">
-          <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-        </button>
-        <button class="icon" id="nextBtn" title="Next (K)">
-          <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg>
-        </button>
+        <div class="transport-icons">
+          <button class="icon" id="prevBtn" title="Previous (J)">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="icon primary" id="playPauseBtn" title="Play/Pause (Space)">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="icon" id="stopBtn" title="Stop (S)">
+            <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+          </button>
+          <button class="icon" id="nextBtn" title="Next (K)">
+            <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg>
+          </button>
+        </div>
 
         <div class="volume-row">
           <button class="icon" id="muteBtn" title="Mute (M)">

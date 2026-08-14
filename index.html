@@ -24,14 +24,14 @@
 <meta name="theme-color" content="#0f0f0f">
 <style>
   :root {
-    --bg: #0f0f0f;
-    --panel: #181818;
-    --panel2: #212121;
-    --border: #303030;
+    --bg: #050506;
+    --panel: #0c0d0f;
+    --panel2: #131417;
+    --border: #2a1518;
     --text: #f1f1f1;
-    --text-dim: #aaaaaa;
-    --red: #d64545;
-    --red-dark: #b83a3a;
+    --text-dim: #8a8f96;
+    --red: #c25353;
+    --red-dark: #a84646;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -39,6 +39,10 @@
     margin: 0;
     font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     background: var(--bg);
+    background-image:
+      linear-gradient(rgba(255,45,61,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,45,61,0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
     color: var(--text);
   }
   .layout {
@@ -105,15 +109,19 @@
     padding: 16px;
     overflow-y: auto;
     min-width: 0;
+    min-height: 0;
   }
   .video-stage {
     position: relative;
     width: 100%;
+    max-height: calc(100vh - 180px);
     aspect-ratio: 16/9;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid rgba(255,45,61,0.2);
     transition: none;
+    margin: 0 auto;
   }
   .layout.audio-mode .video-stage {
     height: 0;
@@ -195,8 +203,9 @@
     background: var(--panel2); border: 1px solid var(--border); color: var(--text);
     padding: 9px 12px; border-radius: 20px; cursor: pointer; font-size: 13px;
     display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
-  button:hover { background: #2b2b2b; }
+  button:hover { background: #1a1214; border-color: rgba(255,45,61,0.4); }
   button.icon { padding: 9px 11px; border-radius: 50%; }
   button.primary { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
   button.primary:hover { background: var(--red-dark); }
@@ -229,6 +238,18 @@
     background: var(--panel2); border: 1px solid var(--border); color: var(--text);
     padding: 6px 10px; border-radius: 14px; font-size: 12px; width: 120px;
   }
+  .panel-header select {
+    background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 8px; border-radius: 14px; font-size: 12px;
+  }
+  .button-row { flex-wrap: wrap; row-gap: 8px; }
+  .modal input[type=text] {
+    width: 100%; box-sizing: border-box; background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px;
+  }
+  .modal input[type=text] + input[type=text] { margin-top: 8px; }
+  .modal .hint { font-size: 11px; color: var(--text-dim); margin: 8px 0 0; }
+  .modal .row.wrap { flex-wrap: wrap; }
 
   ul.playlist { list-style: none; margin: 0; padding: 8px; overflow-y: auto; flex: 1; }
   li.track {
@@ -236,7 +257,7 @@
     padding: 8px; border-radius: 8px; cursor: pointer; margin-bottom: 2px;
   }
   li.track:hover { background: var(--panel2); }
-  li.track.playing { background: #2a1c1c; }
+  li.track.playing { background: #1e0c0e; box-shadow: inset 3px 0 0 var(--red); }
   li.track .idx { font-size: 11px; color: var(--text-dim); width: 16px; flex-shrink: 0; }
   li.track .thumb {
     width: 64px; height: 36px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: #000;
@@ -251,6 +272,14 @@
     background: none; border: none; color: var(--text-dim); padding: 4px; font-size: 15px; border-radius: 50%;
   }
   li.track .remove-btn:hover { color: var(--red); background: var(--panel2); }
+  li.track .move-col { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+  li.track .move-btn {
+    background: none; border: none; color: var(--text-dim); padding: 0; margin: 0;
+    width: 20px; height: 15px; font-size: 9px; line-height: 1; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  li.track .move-btn:hover:not(:disabled) { color: var(--text); background: var(--panel2); }
+  li.track .move-btn:disabled { opacity: 0.25; cursor: default; }
   li.track.dragging { opacity: 0.4; }
 
   .empty-state { color: var(--text-dim); font-size: 13px; text-align: center; padding: 30px 12px; }
@@ -290,6 +319,7 @@
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
     .side-panel { border-left: none; border-top: 1px solid var(--border); max-height: 320px; }
+    .video-stage { max-height: 50vh; }
   }
 
   .site-footer {
@@ -380,6 +410,7 @@
       <div class="transport-row transport-modes">
         <button id="shuffleBtn" title="Shuffle (H)">Shuffle</button>
         <button id="repeatBtn" title="Repeat (R)">Repeat: Off</button>
+        <button id="sleepBtn" title="Sleep timer">Sleep timer</button>
         <button id="fullscreenBtn" title="Fullscreen (F)">Fullscreen</button>
       </div>
     </div>
@@ -392,7 +423,14 @@
     </div>
     <ul class="playlist" id="playlist"></ul>
     <div class="empty-state" id="emptyStateSide">Your playlist is empty.</div>
-    <div class="panel-header" style="border-top:1px solid var(--border); border-bottom:none;">
+    <div class="panel-header button-row" style="border-top:1px solid var(--border); border-bottom:none;">
+      <select id="sortSelect" style="font-size:12px;" title="Sort playlist">
+        <option value="" selected disabled>Sort…</option>
+        <option value="title-asc">Title A–Z</option>
+        <option value="title-desc">Title Z–A</option>
+        <option value="added-new">Newest added</option>
+        <option value="added-old">Oldest added</option>
+      </select>
       <button id="exportBtn" style="font-size:12px;">Export</button>
       <button id="importBtn" style="font-size:12px;">Import</button>
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
@@ -420,6 +458,24 @@
   </footer>
 </div>
 
+<div class="modal-overlay" id="sleepModal">
+  <div class="modal">
+    <h3>Sleep timer</h3>
+    <p class="hint" style="margin-top:0;">Pause playback after:</p>
+    <div class="row wrap">
+      <button class="sleep-opt" data-min="10">10 min</button>
+      <button class="sleep-opt" data-min="20">20 min</button>
+      <button class="sleep-opt" data-min="30">30 min</button>
+      <button class="sleep-opt" data-min="45">45 min</button>
+      <button class="sleep-opt" data-min="60">60 min</button>
+    </div>
+    <div class="row">
+      <button id="sleepOff">Turn off</button>
+      <button id="sleepCancel">Close</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 const STORAGE_KEY = 'ytplayer_playlist_v1';
@@ -438,6 +494,9 @@ let player = null;
 let playerReady = false;
 let isPlaying = false;
 let filterText = '';
+let lastPosition = 0;
+let sleepTimeoutId = null;
+let sleepEndAt = null;
 
 const el = id => document.getElementById(id);
 
@@ -470,13 +529,14 @@ function loadState() {
       volume = typeof s.volume === 'number' ? s.volume : 70;
       muted = !!s.muted;
       currentIndex = typeof s.currentIndex === 'number' ? s.currentIndex : -1;
+      lastPosition = typeof s.lastPosition === 'number' ? s.lastPosition : 0;
     }
   } catch (e) {}
 }
 
 function savePlaylist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(playlist)); }
 function saveState() {
-  localStorage.setItem(STATE_KEY, JSON.stringify({ repeatMode, shuffleOn, audioMode, volume, muted, currentIndex, playlistHidden }));
+  localStorage.setItem(STATE_KEY, JSON.stringify({ repeatMode, shuffleOn, audioMode, volume, muted, currentIndex, playlistHidden, lastPosition }));
 }
 
 function showError(msg) {
@@ -518,13 +578,23 @@ function renderPlaylist() {
           <div class="t">${escapeHtml(track.title || track.id)}</div>
           <div class="type">${track.type || 'video'}</div>
         </div>
+        <div class="move-col">
+          <button class="move-btn" data-dir="-1" title="Move up" ${i === 0 ? 'disabled' : ''}>▲</button>
+          <button class="move-btn" data-dir="1" title="Move down" ${i === playlist.length - 1 ? 'disabled' : ''}>▼</button>
+        </div>
         <button class="remove-btn" data-idx="${i}" title="Remove">✕</button>
       `;
       li.addEventListener('click', (ev) => {
-        if (ev.target.closest('.remove-btn')) return;
+        if (ev.target.closest('.remove-btn') || ev.target.closest('.move-btn')) return;
         playTrackAt(i);
       });
       li.querySelector('.remove-btn').addEventListener('click', (ev) => { ev.stopPropagation(); removeTrack(i); });
+      li.querySelectorAll('.move-btn').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          moveTrack(i, parseInt(btn.dataset.dir, 10));
+        });
+      });
       li.addEventListener('dragstart', () => li.classList.add('dragging'));
       li.addEventListener('dragend', () => { li.classList.remove('dragging'); persistOrderAfterDrag(ulId); });
       li.addEventListener('dragover', (ev) => {
@@ -538,6 +608,15 @@ function renderPlaylist() {
       ul.appendChild(li);
     });
   });
+}
+
+function moveTrack(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= playlist.length) return;
+  const currentUid = currentIndex >= 0 && playlist[currentIndex] ? playlist[currentIndex].uid : null;
+  [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+  if (currentUid != null) currentIndex = playlist.findIndex(t => t.uid === currentUid);
+  savePlaylist(); saveState(); renderPlaylist();
 }
 
 function persistOrderAfterDrag(ulId) {
@@ -639,13 +718,13 @@ function removeTrack(i) {
   if (shuffleOn) buildShuffleOrder();
 }
 
-function playTrackAt(i) {
+function playTrackAt(i, startSeconds) {
   if (i < 0 || i >= playlist.length) return;
   currentIndex = i;
+  lastPosition = startSeconds || 0;
   const track = playlist[i];
   if (player && playerReady) {
-    player.loadVideoById(track.id);
-    player.playVideo();
+    player.loadVideoById({ videoId: track.id, startSeconds: lastPosition });
     isPlaying = true;
   }
   updatePlayPauseBtn(); updateNowPlaying(); renderPlaylist(); saveState();
@@ -693,9 +772,18 @@ function onVideoEnd() {
 }
 
 function onPlayerStateChange(ev) {
-  if (ev.data === YT.PlayerState.ENDED) onVideoEnd();
+  if (ev.data === YT.PlayerState.ENDED) { lastPosition = 0; saveState(); onVideoEnd(); }
   else if (ev.data === YT.PlayerState.PLAYING) { isPlaying = true; updatePlayPauseBtn(); showError(''); }
-  else if (ev.data === YT.PlayerState.PAUSED) { isPlaying = false; updatePlayPauseBtn(); }
+  else if (ev.data === YT.PlayerState.PAUSED) {
+    isPlaying = false; updatePlayPauseBtn();
+    try { lastPosition = player.getCurrentTime(); } catch (e) {}
+    saveState();
+  } else if (ev.data === YT.PlayerState.CUED) {
+    try {
+      const dur = player.getDuration();
+      if (dur > 0) { el('seekBar').max = dur; el('durTime').textContent = formatTime(dur); }
+    } catch (e) {}
+  }
 }
 
 function onPlayerError(ev) {
@@ -724,6 +812,13 @@ function onPlayerReady() {
   player.setVolume(volume);
   if (muted) player.mute();
   setInterval(updateSeekUI, 500);
+  if (currentIndex >= 0 && playlist[currentIndex]) {
+    const track = playlist[currentIndex];
+    player.cueVideoById({ videoId: track.id, startSeconds: lastPosition || 0 });
+    el('seekBar').value = lastPosition || 0;
+    el('curTime').textContent = formatTime(lastPosition || 0);
+    updateNowPlaying();
+  }
 }
 
 function updateSeekUI() {
@@ -737,6 +832,7 @@ function updateSeekUI() {
       el('curTime').textContent = formatTime(cur);
       el('durTime').textContent = formatTime(dur);
     }
+    lastPosition = cur;
   } catch (e) {}
 }
 
@@ -759,7 +855,7 @@ el('playPauseBtn').addEventListener('click', () => {
 });
 el('stopBtn').addEventListener('click', () => {
   if (!playerReady) return;
-  player.stopVideo(); isPlaying = false; updatePlayPauseBtn();
+  player.stopVideo(); isPlaying = false; lastPosition = 0; updatePlayPauseBtn(); saveState();
 });
 el('nextBtn').addEventListener('click', () => { const n = getNextIndex(); if (n !== -1) playTrackAt(n); });
 el('prevBtn').addEventListener('click', () => { const p = getPrevIndex(); if (p !== -1) playTrackAt(p); });
@@ -783,7 +879,12 @@ el('fullscreenBtn').addEventListener('click', () => {
 });
 
 el('seekBar').addEventListener('input', () => { el('curTime').textContent = formatTime(el('seekBar').value); });
-el('seekBar').addEventListener('change', () => { if (player && playerReady) player.seekTo(parseFloat(el('seekBar').value), true); });
+el('seekBar').addEventListener('change', () => {
+  const v = parseFloat(el('seekBar').value);
+  lastPosition = v;
+  if (player && playerReady) player.seekTo(v, true);
+  saveState();
+});
 
 el('volumeBar').addEventListener('input', () => {
   volume = parseInt(el('volumeBar').value);
@@ -796,6 +897,20 @@ el('muteBtn').addEventListener('click', () => {
   if (player && playerReady) { if (muted) player.mute(); else { player.unMute(); player.setVolume(volume || 70); } }
   if (!muted && volume === 0) { volume = 70; el('volumeBar').value = 70; }
   updateVolumeIcon(); saveState();
+});
+
+el('sortSelect').addEventListener('change', () => {
+  const mode = el('sortSelect').value;
+  if (!mode) return;
+  const currentUid = currentIndex >= 0 && playlist[currentIndex] ? playlist[currentIndex].uid : null;
+  const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+  if (mode === 'title-asc') playlist.sort((a, b) => collator.compare(a.title || a.id, b.title || b.id));
+  else if (mode === 'title-desc') playlist.sort((a, b) => collator.compare(b.title || b.id, a.title || a.id));
+  else if (mode === 'added-new') playlist.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+  else if (mode === 'added-old') playlist.sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0));
+  if (currentUid != null) currentIndex = playlist.findIndex(t => t.uid === currentUid);
+  savePlaylist(); saveState(); renderPlaylist();
+  el('sortSelect').value = '';
 });
 
 el('filterInput').addEventListener('input', (e) => { filterText = e.target.value; el('filterInputBottom').value = filterText; renderPlaylist(); });
@@ -849,6 +964,44 @@ el('importFileInput').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
+function setSleepTimer(minutes) {
+  clearSleepTimer();
+  sleepEndAt = Date.now() + minutes * 60000;
+  sleepTimeoutId = setTimeout(() => {
+    if (player && playerReady) player.pauseVideo();
+    isPlaying = false; updatePlayPauseBtn();
+    sleepTimeoutId = null; sleepEndAt = null;
+    updateSleepBtn();
+  }, minutes * 60000);
+  updateSleepBtn();
+}
+function clearSleepTimer() {
+  if (sleepTimeoutId) clearTimeout(sleepTimeoutId);
+  sleepTimeoutId = null;
+  sleepEndAt = null;
+  updateSleepBtn();
+}
+function updateSleepBtn() {
+  const btn = el('sleepBtn');
+  if (sleepEndAt) {
+    const mins = Math.max(1, Math.ceil((sleepEndAt - Date.now()) / 60000));
+    btn.textContent = `Sleep: ${mins}m`;
+    btn.classList.add('active');
+  } else {
+    btn.textContent = 'Sleep timer';
+    btn.classList.remove('active');
+  }
+}
+setInterval(() => { if (sleepEndAt) updateSleepBtn(); }, 30000);
+
+el('sleepBtn').addEventListener('click', () => el('sleepModal').classList.add('show'));
+el('sleepCancel').addEventListener('click', () => el('sleepModal').classList.remove('show'));
+el('sleepOff').addEventListener('click', () => { clearSleepTimer(); el('sleepModal').classList.remove('show'); });
+document.querySelectorAll('.sleep-opt').forEach(btn => {
+  btn.addEventListener('click', () => { setSleepTimer(parseInt(btn.dataset.min, 10)); el('sleepModal').classList.remove('show'); });
+});
+el('sleepModal').addEventListener('click', (e) => { if (e.target === el('sleepModal')) el('sleepModal').classList.remove('show'); });
+
 document.addEventListener('keydown', (e) => {
   if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   switch (e.key.toLowerCase()) {
@@ -876,7 +1029,12 @@ document.addEventListener('keydown', (e) => {
   updateVolumeIcon();
   updateNowPlaying();
   if (shuffleOn) buildShuffleOrder();
-  window.addEventListener('beforeunload', saveState);
+  window.addEventListener('beforeunload', () => {
+    if (player && playerReady && isPlaying) {
+      try { lastPosition = player.getCurrentTime(); } catch (e) {}
+    }
+    saveState();
+  });
 })();
 </script>
 </body>

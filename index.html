@@ -12,14 +12,14 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="PlayTube — YouTube Playlist Player">
 <meta property="og:description" content="A clean, minimal YouTube playlist player. Stream videos or podcasts, save playlists that persist offline, shuffle, repeat, and switch between video and audio-only mode.">
-<meta property="og:image" content="https://anirudhvemula.github.io/PlayTube/og-image.png">
+<meta property="og:image" content="https://anirudhvemula.github.io/playtube/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PlayTube — YouTube Playlist Player">
 <meta name="twitter:description" content="A clean, minimal YouTube playlist player. Stream videos or podcasts, save playlists that persist offline, shuffle, repeat, and switch between video and audio-only mode.">
-<meta name="twitter:image" content="https://anirudhvemula.github.io/PlayTube/og-image.png">
+<meta name="twitter:image" content="https://anirudhvemula.github.io/playtube/og-image.png">
 
 <meta name="theme-color" content="#0f0f0f">
 <style>
@@ -47,11 +47,26 @@
   }
   .layout {
     display: grid;
-    grid-template-columns: 1fr 360px;
-    grid-template-rows: 1fr auto auto;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-rows: auto auto 1fr auto auto auto auto;
     height: 100vh;
   }
-  .layout.audio-mode { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; height: auto; min-height: 100vh; }
+  header.topbar { grid-column: 1 / -1; grid-row: 1; }
+  .file-warning { grid-column: 1 / -1; grid-row: 2; }
+  main.player-area { grid-column: 1; grid-row: 3; }
+  aside.side-panel { grid-column: 2; grid-row: 3; }
+  .bottom-panel { grid-column: 1 / -1; grid-row: 4; }
+  .add-bar { grid-column: 1 / -1; grid-row: 5; }
+  .error-msg { grid-column: 1 / -1; grid-row: 6; }
+  footer.site-footer { grid-column: 1 / -1; grid-row: 7; }
+  .layout.audio-mode { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto auto auto auto; height: auto; min-height: 100vh; }
+  .layout.audio-mode header.topbar { grid-row: 1; }
+  .layout.audio-mode .file-warning { grid-row: 2; }
+  .layout.audio-mode main.player-area { grid-column: 1; grid-row: 3; }
+  .layout.audio-mode .bottom-panel { grid-column: 1; grid-row: 4; }
+  .layout.audio-mode .add-bar { grid-column: 1; grid-row: 5; }
+  .layout.audio-mode .error-msg { grid-column: 1; grid-row: 6; }
+  .layout.audio-mode footer.site-footer { grid-row: 7; }
   .layout.audio-mode .side-panel { display: none; }
   .layout.audio-mode .bottom-panel { display: block; }
   .layout.audio-mode .placeholder { display: none; }
@@ -67,21 +82,21 @@
   .layout.audio-mode .transport-main { justify-content: center; }
   .layout.audio-mode .transport-modes { justify-content: center; }
   .layout.audio-mode #ytplayer { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
-  .layout.playlist-hidden { grid-template-columns: 1fr; }
+  .layout.playlist-hidden { grid-template-columns: minmax(0, 1fr); }
   .layout.playlist-hidden .side-panel { display: none; }
+  .layout.playlist-hidden main.player-area { grid-column: 1; }
   .bottom-panel { display: none; }
 
   header.topbar {
-    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
     background: var(--panel);
-    height: 52px;
-    flex-wrap: nowrap;
-    overflow: hidden;
+    min-height: 52px;
+    flex-wrap: wrap;
+    min-width: 0;
   }
   .yt-logo { display: flex; align-items: baseline; gap: 8px; font-weight: 700; font-size: 18px; min-width: 0; }
   .brand-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; border-radius: 4px; align-self: center; }
@@ -95,8 +110,14 @@
   @media (max-width: 640px) { .byline { display: none; } }
   .topbar .spacer { flex: 1; }
   .topbar .status { font-size: 12px; color: var(--text-dim); }
+  @media (max-width: 480px) {
+    header.topbar { flex-wrap: wrap; }
+    .yt-logo { flex: 1 1 100%; }
+    .topbar .spacer { display: none; }
+    .topbar .status { flex: 1 1 auto; }
+    header.topbar button { flex: 0 0 auto; }
+  }
   .file-warning {
-    grid-column: 1 / -1;
     background: #3a2f1a; color: #f0c674; font-size: 12px;
     padding: 8px 16px; border-bottom: 1px solid var(--border);
     display: none;
@@ -221,17 +242,20 @@
     display: flex; flex-direction: column;
     background: var(--panel);
     min-height: 0;
+    min-width: 0;
   }
   .bottom-panel {
-    grid-column: 1 / -1;
     border-top: 1px solid var(--border);
     background: var(--panel);
     max-height: 300px;
     overflow-y: auto;
+    min-width: 0;
   }
   .panel-header {
     display: flex; align-items: center; gap: 8px;
     padding: 12px 14px; border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    min-width: 0;
   }
   .panel-header h2 { font-size: 14px; margin: 0; font-weight: 500; flex: 1; }
   .panel-header input[type=text] {
@@ -285,15 +309,20 @@
   .empty-state { color: var(--text-dim); font-size: 13px; text-align: center; padding: 30px 12px; }
 
   .add-bar {
-    grid-column: 1 / -1;
     display: flex; gap: 8px; align-items: center;
     padding: 12px 16px; border-top: 1px solid var(--border); background: var(--panel);
+    min-width: 0;
   }
   .add-bar input[type=text] {
-    flex: 1; background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+    flex: 1; min-width: 0; background: var(--panel2); border: 1px solid var(--border); color: var(--text);
     padding: 11px 14px; border-radius: 22px; font-size: 14px;
   }
   .add-bar input[type=text]:focus { outline: none; border-color: var(--red); }
+  @media (max-width: 480px) {
+    .add-bar { flex-wrap: wrap; }
+    .add-bar input[type=text] { flex: 1 1 100%; }
+    .add-bar button { flex: 1 1 100%; justify-content: center; }
+  }
   .error-msg { color: #ff6b6b; font-size: 12px; padding: 0 16px; }
 
   .modal-overlay {
@@ -317,7 +346,16 @@
   ::-webkit-scrollbar-track { background: transparent; }
 
   @media (max-width: 860px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto auto auto auto auto auto;
+    }
+    main.player-area { grid-column: 1; grid-row: 3; }
+    aside.side-panel { grid-column: 1; grid-row: 4; }
+    .bottom-panel { grid-column: 1; grid-row: 5; }
+    .add-bar { grid-column: 1; grid-row: 6; }
+    .error-msg { grid-column: 1; grid-row: 7; }
+    footer.site-footer { grid-column: 1; grid-row: 8; }
     .side-panel { border-left: none; border-top: 1px solid var(--border); max-height: 320px; }
     .video-stage { max-height: 50vh; }
   }
@@ -932,7 +970,7 @@ el('exportBtn').addEventListener('click', () => {
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'PlayTube-playlist.json'; a.click();
+  a.href = url; a.download = 'playtube-playlist.json'; a.click();
   URL.revokeObjectURL(url);
 });
 el('importBtn').addEventListener('click', () => { el('importFileInput').click(); });

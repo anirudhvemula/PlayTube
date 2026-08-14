@@ -12,14 +12,14 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="PlayTube — YouTube Playlist Player">
 <meta property="og:description" content="A clean, minimal YouTube playlist player. Stream videos or podcasts, save playlists that persist offline, shuffle, repeat, and switch between video and audio-only mode.">
-<meta property="og:image" content="https://anirudhvemula.github.io/playtube/og-image.png">
+<meta property="og:image" content="https://anirudhvemula.github.io/PlayTube/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PlayTube — YouTube Playlist Player">
 <meta name="twitter:description" content="A clean, minimal YouTube playlist player. Stream videos or podcasts, save playlists that persist offline, shuffle, repeat, and switch between video and audio-only mode.">
-<meta name="twitter:image" content="https://anirudhvemula.github.io/playtube/og-image.png">
+<meta name="twitter:image" content="https://anirudhvemula.github.io/PlayTube/og-image.png">
 
 <meta name="theme-color" content="#0f0f0f">
 <style>
@@ -932,7 +932,7 @@ el('exportBtn').addEventListener('click', () => {
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'playtube-playlist.json'; a.click();
+  a.href = url; a.download = 'PlayTube-playlist.json'; a.click();
   URL.revokeObjectURL(url);
 });
 el('importBtn').addEventListener('click', () => { el('importFileInput').click(); });
